@@ -1,22 +1,30 @@
-# Script Name: docker-compose.yml
-# Author: Amr (for lab practice)
-# Date of Creation: 28-Sep-2025
-# Description: Setup MySQL and ClickHouse for performance comparison.
-
-version: "3.8"
+version: '3.9'
 services:
   mysql:
     image: mysql:8.0
     container_name: mysql_lab
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: labdb
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: salesdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass123
+    command: --local-infile=1
     ports:
       - "3306:3306"
+    volumes:
+      - ./init-mysql:/docker-entrypoint-initdb.d
 
   clickhouse:
-    image: clickhouse/clickhouse-server:24.8
+    image: clickhouse/clickhouse-server:24.7
     container_name: clickhouse_lab
+    restart: always
+    environment:
+      CLICKHOUSE_DB: salesdb
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
     ports:
-      - "8123:8123"
-      - "9000:9000"
+      - "8123:8123" # HTTP
+      - "9000:9000" # Native
+    volumes:
+      - ./init-clickhouse:/docker-entrypoint-initdb.d
